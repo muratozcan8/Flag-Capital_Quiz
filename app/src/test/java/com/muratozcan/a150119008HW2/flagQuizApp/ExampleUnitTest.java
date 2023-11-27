@@ -1,4 +1,4 @@
-package com.nadershamma.apps.androidfunwithflags;
+package com.muratozcan.a150119008HW2.flagQuizApp;
 
 import org.junit.Test;
 

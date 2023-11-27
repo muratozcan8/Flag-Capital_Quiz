@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nadershamma.apps.androidfunwithflags">
+    package="com.muratozcan.a150119008HW2.flagQuizApp">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.muratozcan.a150119008HW2.flagQuizApp.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
@@ -21,13 +21,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.muratozcan.a150119008HW2.flagQuizApp.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.muratozcan.a150119008HW2.flagQuizApp.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.nadershamma.apps.androidfunwithflags.MainActivity" />
+                android:value="com.muratozcan.a150119008HW2.flagQuizApp.MainActivity" />
         </activity>
     </application>
 
