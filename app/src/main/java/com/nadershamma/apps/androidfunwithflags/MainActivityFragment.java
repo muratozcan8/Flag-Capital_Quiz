@@ -90,7 +90,7 @@ public class MainActivityFragment extends Fragment {
         this.questionNumberTextView.setText(
                 getString(R.string.question, 1, QuizViewModel.getFlagsInQuiz()));
         this.pointTextView.setText(
-                "Point: " + this.quizViewModel.getPoint()
+                getString(R.string.point, this.quizViewModel.getPoint())
         );
 
         return view;
@@ -136,7 +136,7 @@ public class MainActivityFragment extends Fragment {
 
     private void loadNextFlag() {
         this.pointTextView.setText(
-            "Point: " + this.quizViewModel.getPoint()
+            getString(R.string.point, this.quizViewModel.getPoint())
         );
         AssetManager assets = getActivity().getAssets();
         String nextImage = this.quizViewModel.getNextCountryFlag();

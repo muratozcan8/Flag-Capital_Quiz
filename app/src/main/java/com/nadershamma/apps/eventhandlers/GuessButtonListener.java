@@ -34,10 +34,10 @@ public class GuessButtonListener implements OnClickListener {
         if (guess.equals(answer)) {
             this.mainActivityFragment.getQuizViewModel().setPoint((24/totalGuess) * (totalGuess - this.mainActivityFragment.getQuizViewModel().getCountOfTry()));
             this.mainActivityFragment.getQuizViewModel().setCountOfTry(0);
-            Log.e("Correct", this.mainActivityFragment.getQuizViewModel().getPoint() + " ");
             this.mainActivityFragment.getQuizViewModel().setCorrectAnswers(1);
             if (this.mainActivityFragment.getQuizViewModel().getIsCorrectAtFirst()){
                 this.mainActivityFragment.getQuizViewModel().setCorrectAnswersAtFirst(1);
+                Log.e("Country", "Guess: " + guess);
             }
             this.mainActivityFragment.getAnswerTextView().setText(answer + "!");
             this.mainActivityFragment.getAnswerTextView().setTextColor(

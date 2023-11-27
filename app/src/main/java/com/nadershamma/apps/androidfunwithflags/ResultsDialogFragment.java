@@ -24,10 +24,12 @@ public class ResultsDialogFragment extends DialogFragment{
         final QuizViewModel quizViewModel = ViewModelProviders.of(getActivity()).get(QuizViewModel.class);
         int totalGuesses = quizViewModel.getTotalGuesses();
         int totalCorrectAtFirst = quizViewModel.getCorrectAnswersAtFirst();
+        int point = quizViewModel.getPoint();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(
                 getString(R.string.results, totalGuesses, (1000 / (double) totalGuesses)) + "\n\n" +
-                        getString(R.string.resultsAtFirst, 10, (double) (totalCorrectAtFirst / 10.0) * 100)
+                        getString(R.string.resultsAtFirst, 10, (double) (totalCorrectAtFirst / (double) QuizViewModel.getFlagsInQuiz()) * 100) + "\n\n" +
+                            getString(R.string.resultsPoint, point)
         );
         builder.setPositiveButton(R.string.reset_quiz, new DialogInterface.OnClickListener() {
             @Override

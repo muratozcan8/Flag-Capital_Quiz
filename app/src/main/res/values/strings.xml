@@ -8,6 +8,8 @@
     <string name="guess_country">Guess the Country</string>
     <string name="results">%1$d guesses, %2$.02f%% correct</string>
     <string name="resultsAtFirst">%2$.02f%% correct on the first try</string>
+    <string name="resultsPoint">%1$d points</string>
+    <string name="point">Point: %1$d</string>
     <string name="incorrect_answer">Incorrect!</string>
     <string name="default_region_message">
         One region must be selected. Setting Europe as the default region.
