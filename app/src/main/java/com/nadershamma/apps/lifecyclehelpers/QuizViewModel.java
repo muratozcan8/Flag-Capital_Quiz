@@ -10,12 +10,21 @@ import com.nadershamma.apps.androidfunwithflags.MainActivity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import android.content.Context;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 public class QuizViewModel extends ViewModel {
     private static final String TAG = "FlagQuiz Activity";
-    private static final int FLAGS_IN_QUIZ = 3;
+    private static final int FLAGS_IN_QUIZ = 10;
 
     private List<String> fileNameList;
     private List<String> quizCountriesList;
@@ -26,8 +35,20 @@ public class QuizViewModel extends ViewModel {
     private int guessRows;
     private int point;
     private int correctAnswersAtFirst;
+
+    public boolean isCorrectBonusAtFirst() {
+        return correctBonusAtFirst;
+    }
+
+    public void setCorrectBonusAtFirst(boolean correctBonusAtFirst) {
+        this.correctBonusAtFirst = correctBonusAtFirst;
+    }
+
+    private boolean correctBonusAtFirst;
     private boolean isCorrectAtFirst = true;
     private int countOfTry;
+    private String questionType = "flag";
+    private String currentImage;
 
 
 
@@ -179,6 +200,65 @@ public class QuizViewModel extends ViewModel {
         }
     }
 
+    public JSONObject getCapitals(Context context, String fileName){
+        try {
+            InputStream is = context.getAssets().open(fileName);
+
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+
+            String json = new String(buffer, StandardCharsets.UTF_8);
+            return new JSONObject(json);
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONArray getCapitalList(Context context, String fileName){
+        JSONObject jsonObject = getCapitals(context, fileName);
+        JSONArray valueArray = new JSONArray();
+
+        if (jsonObject != null) {
+            try {
+                Iterator<String> keys = jsonObject.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    String value = jsonObject.getString(key);
+
+                    valueArray.put(value);
+                }
+
+                for (int i = 0; i < valueArray.length(); i++) {
+                    //String value = valueArray.getString(i);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return valueArray;
+        }
+        return null;
+    }
+
+    public String getQuestionType() {
+        return this.questionType;
+    }
+
+    public void setQuestionType(String questionType) {
+        this.questionType = questionType;
+    }
+
+    public String getCurrentImage(){
+        return this.currentImage;
+    }
+
+    public void setCurrentImage(String currentImage) {
+        this.currentImage = currentImage;
+    }
 
 
 }

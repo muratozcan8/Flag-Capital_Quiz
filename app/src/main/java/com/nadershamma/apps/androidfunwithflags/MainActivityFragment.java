@@ -3,6 +3,10 @@ package com.nadershamma.apps.androidfunwithflags;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -31,6 +35,10 @@ import android.widget.TableRow;
 import com.nadershamma.apps.eventhandlers.GuessButtonListener;
 import com.nadershamma.apps.lifecyclehelpers.QuizViewModel;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MainActivityFragment extends Fragment {
 
     private SecureRandom random;
@@ -42,6 +50,7 @@ public class MainActivityFragment extends Fragment {
     private TextView answerTextView;
     private QuizViewModel quizViewModel;
     private TextView pointTextView;
+    private TextView guessCountryTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +76,7 @@ public class MainActivityFragment extends Fragment {
         this.guessTableRows = new TableRow[4];
         this.answerTextView = view.findViewById(R.id.answerTextView);
         this.pointTextView = view.findViewById(R.id.textViewPoint);
+        this.guessCountryTextView = view.findViewById(R.id.guessCountryTextView);
 
 
 
@@ -110,6 +120,7 @@ public class MainActivityFragment extends Fragment {
     public void resetQuiz() {
         this.quizViewModel.setIsCorrectAtFirst(true);
         this.quizViewModel.setCorrectAnswersAtFirst(0);
+        this.quizViewModel.setQuestionType("flag");
         this.quizViewModel.setPoint(-this.quizViewModel.getPoint());
         this.quizViewModel.clearFileNameList();
         this.quizViewModel.setFileNameList(getActivity().getAssets());
@@ -138,9 +149,14 @@ public class MainActivityFragment extends Fragment {
         this.pointTextView.setText(
             getString(R.string.point, this.quizViewModel.getPoint())
         );
+        this.guessCountryTextView.setText(
+                getString(R.string.guess_country)
+        );
         AssetManager assets = getActivity().getAssets();
         String nextImage = this.quizViewModel.getNextCountryFlag();
         String region = nextImage.substring(0, nextImage.indexOf('-'));
+
+        this.quizViewModel.setCurrentImage(nextImage);
 
         this.quizViewModel.setIsCorrectAtFirst(true);
 
@@ -153,7 +169,7 @@ public class MainActivityFragment extends Fragment {
         try (InputStream stream = assets.open(region + "/" + nextImage + ".png")) {
             Drawable flag = Drawable.createFromStream(stream, nextImage);
             flagImageView.setImageDrawable(flag);
-            animate(false);
+            animate(false, false, "");
         } catch (IOException e) {
             Log.e(QuizViewModel.getTag(), "Error Loading " + nextImage, e);
         }
@@ -179,7 +195,73 @@ public class MainActivityFragment extends Fragment {
         ((Button) randomRow.getChildAt(column)).setText(this.quizViewModel.getCorrectCountryName());
     }
 
-    public void animate(boolean animateOut) {
+    private void loadBonus(String guess) {
+        this.pointTextView.setText(
+                getString(R.string.point, this.quizViewModel.getPoint())
+        );
+        this.guessCountryTextView.setText(
+                getString(R.string.guess_capital, guess)
+        );
+
+        String correctCapital = "";
+        AssetManager assets = getActivity().getAssets();
+        JSONObject jsonObject = this.quizViewModel.getCapitals(Objects.requireNonNull(this.getContext()), "capitals.json");
+        JSONArray jsonArray = this.quizViewModel.getCapitalList(Objects.requireNonNull(this.getContext()), "capitals.json");
+        List<String> chocies = new ArrayList<>();
+        try{
+            correctCapital = jsonObject.getString(guess);
+            chocies.add(correctCapital);
+            if(jsonObject.isNull(jsonObject.getString(guess))){
+                Log.e("Country", "Capital of " + guess + ": " + jsonObject.getString(guess));
+
+                for (int i = 0; i < this.quizViewModel.getGuessRows() * 2; i++) {
+                    Random random = new Random();
+                    int randomNumber = random.nextInt(jsonArray.length()-1);
+                    String capital = jsonArray.getString(randomNumber);
+                    if (!chocies.contains(capital)) {
+                        chocies.add(capital);
+                    } else {
+                        i--;
+                    }
+                }
+            }
+            this.quizViewModel.setCorrectAnswer(jsonObject.getString(guess));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String nextImage = this.quizViewModel.getCurrentImage();
+        String region = nextImage.substring(0, nextImage.indexOf('-'));
+
+        this.quizViewModel.setIsCorrectAtFirst(true);
+
+        answerTextView.setText("");
+
+        questionNumberTextView.setText(getString(R.string.bonusQuestion));
+
+        try (InputStream stream = assets.open(region + "/" + nextImage + ".png")) {
+            Drawable flag = Drawable.createFromStream(stream, nextImage);
+            flagImageView.setImageDrawable(flag);
+            animate(false, false, "");
+        } catch (IOException e) {
+            Log.e(QuizViewModel.getTag(), "Error Loading " + nextImage, e);
+        }
+
+        for (int rowNumber = 0; rowNumber < this.quizViewModel.getGuessRows(); rowNumber++) {
+            for (int column = 0; column < guessTableRows[rowNumber].getChildCount(); column++) {
+                Button guessButton = (Button) guessTableRows[rowNumber].getVirtualChildAt(column);
+                guessButton.setEnabled(true);
+                guessButton.setText(chocies.get(rowNumber*guessTableRows[rowNumber].getChildCount() + column));
+            }
+        }
+
+        int row = this.random.nextInt(this.quizViewModel.getGuessRows());
+        int column = this.random.nextInt(2);
+        TableRow randomRow = guessTableRows[row];
+        ((Button) randomRow.getChildAt(column)).setText(correctCapital);
+        ((Button) guessTableRows[0].getChildAt(0)).setText(chocies.get(row * 2 + column));
+    }
+
+    public void animate(boolean animateOut, boolean isBonus, String guess) {
         if (this.quizViewModel.getCorrectAnswers() == 0) {
             return;
         }
@@ -194,7 +276,12 @@ public class MainActivityFragment extends Fragment {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
-                    loadNextFlag();
+                    if(isBonus) {
+                        loadBonus(guess);
+                    }else {
+                        loadNextFlag();
+                    }
+
                 }
             });
         } else {
